@@ -1,11 +1,13 @@
 See https://github.com/tevador/RandomX for installation
 trying to solve a problem on rpi --mine mode problems
 
-> hproblems with --softAes option can came from the  fact that Cortex-A53 desnt implement AES (in hardware) ?
+ERROR: Cannot create VM with the selected options. Try using --softAes with call :
+: ./randomx-benchmark --verify
+> problems without --softAes option can came from the  fact that Cortex-A53 desnt implement AES (in hardware) ?:
+ 
+ERROR: Dataset allocation failed
+> Verify if this error cannot came from --softAes but from --mine (and what can raise this type of exception)
+: ./randomx-benchmark --mine
+: ./randomx-benchmark --mine --softAes
 
-<!-- [![Build Status] (ERROR: Cannot create VM with the selected options. Try using --softAes) ] (gfdjk) -->
-<-- ERROR: Cannot create VM with the selected options. Try using --softAes : ./randomx-benchmark --verify -->
-ERROR: Dataset allocation failed : ./randomx-benchmark --mine --softAes 
-> Verify if this error cannot came from --softAes but from --mine
-
- ERROR: Dataset allocation failed : ./randomx-benchmark --mine
+There is more errors but not yet all listed
