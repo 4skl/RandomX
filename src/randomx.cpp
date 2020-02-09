@@ -139,6 +139,7 @@ extern "C" {
 
 		//fail on 32-bit systems if DatasetSize is >= 4 GiB
 		if (randomx::DatasetSize > std::numeric_limits<size_t>::max()) {
+			std::cout << "Bad dataset size" << std::endl; /// debug
 			return nullptr;
 		}
 
@@ -156,6 +157,7 @@ extern "C" {
 			}
 		}
 		catch (std::exception &ex) {
+			std::cout << "Std exception" << std::endl; /// debug
 			if (dataset != nullptr) {
 				randomx_release_dataset(dataset);
 				dataset = nullptr;

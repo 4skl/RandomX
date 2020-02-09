@@ -268,7 +268,7 @@ int main(int argc, char** argv) {
 		std::cout << " (" << initThreadCount << " thread" << (initThreadCount > 1 ? "s)" : ")");
 	std::cout << " ..." << std::endl;
 
-	try {
+	try {// Code below can cause memory exception 
 		if (nullptr == randomx::selectArgonImpl(flags)) {
 			throw std::runtime_error("Unsupported Argon2 implementation");
 		}
@@ -360,7 +360,7 @@ int main(int argc, char** argv) {
 		else {
 			std::cout << "Performance: " << noncesCount / elapsed << " hashes per second" << std::endl;
 		}
-	}
+	}// Code above can cause memory exception 
 	catch (MemoryException& e) {
 		std::cout << "ERROR: " << e.what() << std::endl;
 		if (largePages) {

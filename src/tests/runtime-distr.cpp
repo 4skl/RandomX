@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 
 		dataset = randomx_alloc_dataset(flags);
 		if (dataset == nullptr) {
-			std::cout << "Dataset allocation failed" << std::endl;
+			std::cout << "Dataset allocation failed 2" << std::endl;
 			return 1;
 		}
 
