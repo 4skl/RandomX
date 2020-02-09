@@ -157,7 +157,7 @@ extern "C" {
 			}
 		}
 		catch (std::exception &ex) {
-			std::cout << "Std exception" << std::endl; /// debug
+			std::cout << "Std exception : " << ex.what() << std::endl; // debug => raised by full memory mode ?
 			if (dataset != nullptr) {
 				randomx_release_dataset(dataset);
 				dataset = nullptr;
