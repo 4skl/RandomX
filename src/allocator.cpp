@@ -31,15 +31,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "intrin_portable.h"
 #include "virtual_memory.hpp"
 #include "common.hpp"
-
+#define RPI_MEM_ON_SDCARD //debug
 namespace randomx {
 
 	template<size_t alignment>
 	void* AlignedAllocator<alignment>::allocMemory(size_t count) {
+		#ifdef RPI_MEM_ON_SDCARD
 		void *mem = rx_aligned_alloc(count, alignment);
 		if (mem == nullptr)
 			throw std::bad_alloc();
 		return mem;
+		#else
+		void *mem = rx_aligned_alloc(count, alignment);
+		if (mem == nullptr)
+			throw std::bad_alloc();
+		return mem;
+		#endif
 	}
 
 	template<size_t alignment>

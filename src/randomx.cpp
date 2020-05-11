@@ -37,6 +37,72 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cassert>
 #include <limits>
 
+//Start array on disk
+#include <cstdint>
+#include <fstream>
+#include <iostream>
+class ArrayOnDisk{//for char only
+private:
+	std::fstream diskFile;
+	static const std::size_t BUFFER_SIZE = 10;
+	std::size_t start_ptr = 0;
+	char buffer[BUFFER_SIZE] = {0};
+
+	void read_buffer(){
+		diskFile.seekg(start_ptr*sizeof(char), std::ios::beg);
+		std::cout << "Read : ";
+		diskFile.read(buffer, BUFFER_SIZE);
+        print_buffer();
+	}
+
+	void write_buffer(){
+		diskFile.seekp(start_ptr*sizeof(char), std::ios::beg);
+        std::cout << "Write : ";
+		diskFile.write(buffer, BUFFER_SIZE);
+        print_buffer();
+	}
+
+public:
+	ArrayOnDisk(std::size_t size){
+        char fileName[100] = "test.txt";
+        diskFile.open(fileName, std::ios::out);//Create if doesn't exists
+        diskFile.close();
+		diskFile.open(fileName, std::fstream::in | std::fstream::out | std::fstream::trunc | std::fstream::binary);
+		if(!diskFile.is_open()){
+			std::cout << "File not opened : " << diskFile.rdstate() << std::endl;
+        }else{
+            diskFile.seekp(size*sizeof(char)-1, std::ios::beg);
+            diskFile.write("",1);
+        }
+	}
+
+	char& operator[](std::size_t idx) {
+		if(start_ptr < idx && idx < start_ptr+BUFFER_SIZE){
+            std::cout << idx << std::endl;
+			return buffer[idx-start_ptr];
+		}else{
+			write_buffer();
+			start_ptr = idx;
+			read_buffer();
+			return buffer[0];
+		}
+	}
+
+	void print_buffer(){
+		std::cout << "buffer : [";
+		for(std::size_t i{0}; i<BUFFER_SIZE; i++){
+			std::cout << buffer[i] << ", ";
+		}
+		std::cout << "]" << std::endl;
+	}
+
+	~ArrayOnDisk(){
+		write_buffer();
+		diskFile.close();
+	}
+};
+//End array on disk
+
 extern "C" {
 
 	randomx_flags randomx_get_flags() {
@@ -151,9 +217,19 @@ extern "C" {
 				dataset->dealloc = &randomx::deallocDataset<randomx::LargePageAllocator>;
 				dataset->memory = (uint8_t*)randomx::LargePageAllocator::allocMemory(randomx::DatasetSize);
 			}
-			else {
+			else { // This code is executed, bug without large pages
 				dataset->dealloc = &randomx::deallocDataset<randomx::DefaultAllocator>;
-				dataset->memory = (uint8_t*)randomx::DefaultAllocator::allocMemory(randomx::DatasetSize);
+				#ifdef RPI_MEM_ON_SDCARD
+				dataset->memory = ArrayOnDisk{randomx::DatasetSize};
+				#else
+				dataset->memory = (uint8_t*)randomx::DefaultAllocator::allocMemory(randomx::DatasetSize); // Error come from here
+				#endif
+				/* ^
+				void *mem = rx_aligned_alloc(count, alignment); // call with a = count and b = alignment : _mm_malloc(a,b) (eq aligned_alloc(a,b) from stdlib.h)
+				if (mem == nullptr)
+					throw std::bad_alloc(); // error trowed
+				 mm_malloc(a,b)
+				*/
 			}
 		}
 		catch (std::exception &ex) {
